@@ -7,7 +7,7 @@ We extend AbstractBaseUser + PermissionsMixin for maximum flexibility.
 import uuid
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
-from django.utils import timezone
+from django.utils import timezone as dj_timezone
 from django.utils.translation import gettext_lazy as _
 
 
@@ -69,7 +69,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
 
     # Timestamps
-    date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
+    date_joined = models.DateTimeField(_("date joined"), default=dj_timezone.now)
     last_login = models.DateTimeField(_("last login"), null=True, blank=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
 

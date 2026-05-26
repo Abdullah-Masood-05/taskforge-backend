@@ -168,6 +168,7 @@ SITE_ID = 1
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_EMAIL_VERIFICATION = "optional"  # set to "mandatory" in prod
 ACCOUNT_ADAPTER = "apps.accounts.adapters.AccountAdapter"
 SOCIALACCOUNT_ADAPTER = "apps.accounts.adapters.SocialAccountAdapter"
@@ -239,6 +240,7 @@ SIMPLE_JWT = {
 REST_AUTH = {
     "USE_JWT": True,
     "JWT_AUTH_HTTPONLY": False,
+    "TOKEN_MODEL": None,
     "REGISTER_SERIALIZER": "apps.accounts.serializers.RegisterSerializer",
     "USER_DETAILS_SERIALIZER": "apps.accounts.serializers.UserSerializer",
 }
