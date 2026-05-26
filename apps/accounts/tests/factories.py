@@ -23,7 +23,13 @@ class UserFactory(DjangoModelFactory):
     last_name = factory.Faker("last_name")
     is_active = True
     is_verified = True
-    password = factory.PostGenerationMethodCall("set_password", "TestPass123!")
+
+    @factory.post_generation
+    def password(self, create, extracted, **kwargs):
+        password = extracted or "TestPass123!"
+        self.set_password(password)
+        if create:
+            self.save(update_fields=["password"])
 
     class Params:
         admin = factory.Trait(is_staff=True, is_superuser=True)
