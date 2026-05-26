@@ -1,0 +1,96 @@
+name: TaskForge Backend CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    name: Lint, Migrate Check & Test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: taskforge_test
+          POSTGRES_USER: taskforge
+          POSTGRES_PASSWORD: taskforge
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 5
+
+    env:
+      DJANGO_SETTINGS_MODULE: config.settings.dev
+      SECRET_KEY: ci-test-secret-key-not-used-in-production-at-all
+      JWT_SECRET_KEY: ci-test-jwt-secret-key
+      DATABASE_URL: postgres://taskforge:taskforge@localhost:5432/taskforge_test
+      REDIS_URL: redis://localhost:6379/0
+      GOOGLE_CLIENT_ID: ""
+      GOOGLE_CLIENT_SECRET: ""
+      FRONTEND_URL: http://localhost:5173
+      DEBUG: "True"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: requirements/dev.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements/dev.txt
+
+      - name: Lint with ruff
+        run: ruff check . --output-format=github
+
+      - name: Check migrations are up to date
+        run: python manage.py migrate --check || python manage.py makemigrations --check --dry-run
+
+      - name: Run tests with coverage
+        run: |
+          pytest \
+            --cov=apps \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            --cov-fail-under=80 \
+            -v
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: coverage.xml
+          flags: backend
+        continue-on-error: true
+
+  security:
+    name: Security scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - run: pip install bandit safety
+      - name: Run bandit (SAST)
+        run: bandit -r apps/ -ll --quiet
+      - name: Check known vulnerabilities
+        run: safety check -r requirements/base.txt --continue-on-error
