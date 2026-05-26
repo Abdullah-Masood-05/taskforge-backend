@@ -1,0 +1,54 @@
+# Core
+Django==5.1.4
+djangorestframework==3.15.2
+django-environ==0.11.2
+
+# Database
+psycopg2-binary==2.9.10
+
+# Auth
+djangorestframework-simplejwt==5.3.1
+django-allauth==65.3.0
+dj-rest-auth==7.0.0
+
+# API utilities
+django-filter==24.3
+drf-spectacular==0.27.2
+django-cors-headers==4.6.0
+
+# Cache / broker
+redis==5.2.1
+django-redis==5.4.0
+
+# Async workers
+celery==5.4.0
+
+# Real-time
+channels==4.1.0
+channels-redis==4.2.0
+daphne==4.1.2
+
+# Security
+django-axes==7.0.1
+django-ratelimit==4.1.0
+
+# Logging
+structlog==24.4.0
+
+# Email
+django-anymail[sendgrid]==12.0
+
+# Storage
+django-storages[s3]==1.14.4
+boto3==1.35.76
+
+# Payments
+stripe==11.3.0
+
+# Observability
+sentry-sdk[django]==2.19.2
+django-silk==5.3.2
+
+# Utilities
+Pillow==11.0.0
+python-slugify==8.0.4

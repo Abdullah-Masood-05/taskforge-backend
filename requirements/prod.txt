@@ -1,0 +1,5 @@
+-r base.txt
+
+# WSGI/ASGI servers
+gunicorn==23.0.0
+uvicorn[standard]==0.32.1
