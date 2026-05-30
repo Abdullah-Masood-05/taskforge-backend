@@ -269,13 +269,14 @@ SPECTACULAR_SETTINGS = {
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = env.list(
     "CORS_ALLOWED_ORIGINS",
-    default=["http://localhost:5173", "http://127.0.0.1:5173"],
+    # Next.js dev server (port 3000). Override in prod via env var.
+    default=["http://localhost:3000", "http://127.0.0.1:3000"],
 )
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
     "accept",
     "accept-encoding",
-    "authorization",
+    "authorization",  # Bearer <JWT> — our primary auth mechanism
     "content-type",
     "dnt",
     "origin",
@@ -308,7 +309,9 @@ AUTHENTICATION_BACKENDS = [
 # ─────────────────────────────────────────────────────────────
 # Frontend URL (for email links, CORS)
 # ─────────────────────────────────────────────────────────────
-FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:5173")
+# Next.js frontend URL — used for email links and CORS.
+# In production, set this to your deployed frontend domain.
+FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:3000")
 
 # ─────────────────────────────────────────────────────────────
 # Logging (structlog-compatible)
