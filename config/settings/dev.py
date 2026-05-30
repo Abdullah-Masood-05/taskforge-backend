@@ -13,10 +13,13 @@ ALLOWED_HOSTS = ["*"]
 # Django Debug Toolbar
 INSTALLED_APPS += ["debug_toolbar", "silk"]  # noqa: F405
 
+# Insert debug tools AFTER CorsMiddleware so CORS preflight still works.
+# CorsMiddleware must be first to add Access-Control-Allow-Origin headers.
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     "silk.middleware.SilkyMiddleware",
-] + MIDDLEWARE  # noqa: F405
+] + [m for m in MIDDLEWARE if m != "corsheaders.middleware.CorsMiddleware"]  # noqa: F405
 
 INTERNAL_IPS = ["127.0.0.1", "::1"]
 
