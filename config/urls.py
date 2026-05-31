@@ -23,8 +23,11 @@ api_v1_patterns = [
     # ONLY the social-login callback endpoint; NOT the JWT token views.
     path("auth/social/", include("dj_rest_auth.registration.urls")),
 
-    # ── Organizations + membership ────────────────────────────────────────
+    # ── Organizations + membership ────────────────────────────────────────────
     path("organizations/", include("apps.organizations.urls")),
+
+    # ── Tasks + projects ──────────────────────────────────────────────────────
+    path("", include("apps.tasks.urls")),
 
     # ── Core utilities ────────────────────────────────────────────────────
     path("", include("apps.core.urls")),
