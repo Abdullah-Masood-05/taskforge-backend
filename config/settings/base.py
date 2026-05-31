@@ -56,6 +56,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "apps.accounts",
     "apps.organizations",
+    "apps.tasks",
     "apps.core",
 ]
 
