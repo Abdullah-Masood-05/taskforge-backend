@@ -51,12 +51,15 @@ THIRD_PARTY_APPS = [
     "dj_rest_auth.registration",
     # Security
     "axes",
+    # Async workers / scheduling
+    "django_celery_beat",
 ]
 
 LOCAL_APPS = [
     "apps.accounts",
     "apps.organizations",
     "apps.tasks",
+    "apps.notifications",
     "apps.core",
 ]
 
@@ -124,6 +127,36 @@ CACHES = {
         },
     }
 }
+
+# ─────────────────────────────────────────────────────────────
+# Celery (Phase 3)
+# ─────────────────────────────────────────────────────────────
+CELERY_BROKER_URL = env("CELERY_BROKER_URL", default=REDIS_URL)
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default=REDIS_URL)
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "UTC"
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 300          # 5-minute hard limit per task
+CELERY_TASK_SOFT_TIME_LIMIT = 240     # Soft limit — SoftTimeLimitExceeded raised
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+
+# ─────────────────────────────────────────────────────────────
+# AWS S3 (Phase 3) — only active when AWS_STORAGE_BUCKET_NAME is set
+# ─────────────────────────────────────────────────────────────
+AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default="")
+AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default="")
+AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME", default="")
+AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default="us-east-1")
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None  # Rely on bucket policy, not ACLs
+AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
+# Presigned URL expiry (1 hour for uploads, 1 hour for downloads)
+AWS_PRESIGNED_EXPIRY = 3600
+
+# Use S3 only when bucket name is configured; fall back to local FileSystem in dev
+USE_S3 = bool(AWS_STORAGE_BUCKET_NAME)
 
 # ─────────────────────────────────────────────────────────────
 # Custom User model

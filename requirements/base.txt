@@ -22,6 +22,7 @@ django-redis==5.4.0
 
 # Async workers
 celery==5.4.0
+django-celery-beat==2.7.0
 
 # Real-time
 channels==4.1.0
@@ -52,3 +53,6 @@ django-silk==5.3.2
 # Utilities
 Pillow==11.0.0
 python-slugify==8.0.4
+
+# PDF generation (Phase 3)
+reportlab==4.2.5
