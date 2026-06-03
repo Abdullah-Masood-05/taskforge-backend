@@ -29,6 +29,9 @@ api_v1_patterns = [
     # ── Tasks + projects ──────────────────────────────────────────────────────
     path("", include("apps.tasks.urls")),
 
+    # ── Notifications + attachments + reports ───────────────────────
+    path("", include("apps.notifications.urls")),
+
     # ── Core utilities ────────────────────────────────────────────────────
     path("", include("apps.core.urls")),
 

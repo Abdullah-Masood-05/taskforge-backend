@@ -388,3 +388,57 @@ class ActivityLog(models.Model):
 
     def __str__(self) -> str:
         return f"{self.actor} {self.verb} on {self.task}"
+
+
+# ─────────────────────────────────────────────────────────────
+# Attachment
+# ─────────────────────────────────────────────────────────────
+
+class Attachment(models.Model):
+    """
+    A file attached to a Task.
+
+    Design decisions:
+    - Stored in apps.tasks (not notifications) to avoid circular imports,
+      since apps.notifications signals listen to Task post_save.
+    - `file_key` stores the S3 object key (e.g. "attachments/org/task/file.pdf")
+      or the relative local path when running without S3.
+    - Presigned upload/download URLs are generated on-the-fly in the view,
+      never stored — they expire after AWS_PRESIGNED_EXPIRY seconds.
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    task = models.ForeignKey(
+        Task,
+        on_delete=models.CASCADE,
+        related_name="attachments",
+        verbose_name=_("task"),
+    )
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="uploaded_attachments",
+        verbose_name=_("uploaded by"),
+    )
+    file_name = models.CharField(_("file name"), max_length=255)
+    file_key = models.CharField(
+        _("file key"),
+        max_length=500,
+        help_text=_("S3 object key or local relative path"),
+    )
+    file_size = models.PositiveIntegerField(_("file size (bytes)"))
+    content_type = models.CharField(_("content type"), max_length=100)
+    created_at = models.DateTimeField(_("uploaded at"), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("attachment")
+        verbose_name_plural = _("attachments")
+        ordering = ["created_at"]
+        indexes = [
+            models.Index(fields=["task"], name="attachment_task_idx"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.file_name} on {self.task}"

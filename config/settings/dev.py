@@ -35,4 +35,15 @@ PASSWORD_HASHERS = [
 ]
 
 # Silk profiling
-SILKY_PYTHON_PROFILER = True
+# Per-request cProfile conflicts with other active profilers (VS Code debugger,
+# coverage, overlapping dev-server requests) -> "Another profiling tool is already
+# active" spam on every request. Silk still records request timing + SQL without it.
+SILKY_PYTHON_PROFILER = False
+
+# ─────────────────────────────────────────────────────────────
+# Celery — run tasks synchronously in dev (no worker process needed)
+# ─────────────────────────────────────────────────────────────
+# NOTE: Remove these two lines if you want to test with a real Celery worker.
+# On Windows, start the worker with: celery -A config worker --pool=solo --loglevel=info
+CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_EAGER_PROPAGATES = True  # Propagate exceptions from tasks
