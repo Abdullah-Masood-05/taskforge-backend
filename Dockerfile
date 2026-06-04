@@ -37,12 +37,7 @@ USER appuser
 
 EXPOSE 8000
 
-# Default: run with Gunicorn (HTTP). Override CMD for Daphne (ASGI/WS).
-CMD ["gunicorn", "config.wsgi:application", \
-     "--bind", "0.0.0.0:8000", \
-     "--workers", "4", \
-     "--worker-class", "gthread", \
-     "--threads", "2", \
-     "--timeout", "60", \
-     "--access-logfile", "-", \
-     "--error-logfile", "-"]
+# Daphne: ASGI server supporting both HTTP and WebSocket.
+# For HTTP-only deployments without WebSocket you could swap this for:
+#   gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 4
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "config.asgi:application"]

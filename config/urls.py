@@ -14,6 +14,7 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
     SpectacularRedocView,
 )
+from apps.organizations.billing_views import StripeWebhookView
 
 api_v1_patterns = [
     # ── Auth (custom JWT views — full control over responses) ────────────
@@ -31,6 +32,13 @@ api_v1_patterns = [
 
     # ── Notifications + attachments + reports ───────────────────────
     path("", include("apps.notifications.urls")),
+
+    # ── Stripe billing webhook (global — no org slug; resolves org via customer ID) ──
+    path(
+        "billing/webhook/",
+        StripeWebhookView.as_view(),
+        name="stripe-webhook",
+    ),
 
     # ── Core utilities ────────────────────────────────────────────────────
     path("", include("apps.core.urls")),

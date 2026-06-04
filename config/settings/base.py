@@ -25,6 +25,8 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 # Application definition
 # ─────────────────────────────────────────────────────────────
 DJANGO_APPS = [
+    # Daphne must be first — before django.contrib.staticfiles (daphne.E001)
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -35,6 +37,8 @@ DJANGO_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
+    # Channels (real-time WebSocket support)
+    "channels",
     # REST framework
     "rest_framework",
     "rest_framework_simplejwt",
@@ -129,6 +133,24 @@ CACHES = {
 }
 
 # ─────────────────────────────────────────────────────────────
+# Django Channels — Redis channel layer (Phase 4)
+# Uses Redis DB 3 to avoid key collisions with:
+#   DB 0 = cache, DB 1 = Celery broker, DB 2 = Celery results
+# ─────────────────────────────────────────────────────────────
+_CHANNELS_REDIS_URL = env("CHANNELS_REDIS_URL", default="redis://localhost:6379/3")
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [_CHANNELS_REDIS_URL],
+            "capacity": 1500,       # max messages buffered per group
+            "expiry": 10,           # seconds before undelivered messages expire
+        },
+    }
+}
+
+# ─────────────────────────────────────────────────────────────
 # Celery (Phase 3)
 # ─────────────────────────────────────────────────────────────
 CELERY_BROKER_URL = env("CELERY_BROKER_URL", default=REDIS_URL)
@@ -157,6 +179,17 @@ AWS_PRESIGNED_EXPIRY = 3600
 
 # Use S3 only when bucket name is configured; fall back to local FileSystem in dev
 USE_S3 = bool(AWS_STORAGE_BUCKET_NAME)
+
+# ─────────────────────────────────────────────────────────────
+# Stripe (Phase 4)
+# Keys are loaded from env; empty defaults mean billing is disabled in dev
+# until real test keys are configured.
+# ─────────────────────────────────────────────────────────────
+STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY", default="")
+STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET", default="")
+STRIPE_PRO_PRICE_ID = env("STRIPE_PRO_PRICE_ID", default="")
+STRIPE_BUSINESS_PRICE_ID = env("STRIPE_BUSINESS_PRICE_ID", default="")
+
 
 # ─────────────────────────────────────────────────────────────
 # Custom User model
@@ -346,6 +379,18 @@ AUTHENTICATION_BACKENDS = [
 # Next.js frontend URL — used for email links and CORS.
 # In production, set this to your deployed frontend domain.
 FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:3000")
+
+# ─────────────────────────────────────────────────────────────
+# Stripe (Phase 4)
+# ─────────────────────────────────────────────────────────────
+# Design decision: augmenting Organization with subscription_status /
+# current_period_end is sufficient for this project. A separate
+# Subscription model would be needed for subscription history or
+# multiple subscriptions per org — neither applies here.
+STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY", default="")
+STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET", default="")
+STRIPE_PRO_PRICE_ID = env("STRIPE_PRO_PRICE_ID", default="")
+STRIPE_BUSINESS_PRICE_ID = env("STRIPE_BUSINESS_PRICE_ID", default="")
 
 # ─────────────────────────────────────────────────────────────
 # Logging (structlog-compatible)
