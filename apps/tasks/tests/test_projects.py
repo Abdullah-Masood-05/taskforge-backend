@@ -62,6 +62,62 @@ class TestProjectCRUD:
         assert response.status_code == status.HTTP_200_OK
         assert str(response.json()["id"]) == str(project.pk)
 
+    def test_free_tier_project_limit(self, authenticated_client):
+        """Free tier is limited to 3 active projects."""
+        client, user, org = _org_client(authenticated_client)
+        org.plan = "free"
+        org.save()
+
+        # Create 3 active projects
+        ProjectFactory.create_batch(3, organization=org)
+
+        # 4th project should be rejected
+        response = client.post(
+            LIST_URL,
+            {"name": "4th Project", "description": "Test"},
+            HTTP_X_ORGANIZATION_SLUG=org.slug,
+        )
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert "limited to 3 active projects" in response.json()["message"]
+
+    def test_free_tier_limit_ignores_archived_and_deleted(self, authenticated_client):
+        """Archived and deleted projects do not count towards the free tier limit."""
+        client, user, org = _org_client(authenticated_client)
+        org.plan = "free"
+        org.save()
+
+        # Create 3 active projects
+        ProjectFactory.create_batch(3, organization=org)
+
+        # Create some archived and deleted projects
+        ProjectFactory.create_batch(2, organization=org, archived=True)
+        ProjectFactory.create_batch(2, organization=org, is_deleted=True)
+
+        # 4th active project should still be rejected
+        response = client.post(
+            LIST_URL,
+            {"name": "4th Project", "description": "Test"},
+            HTTP_X_ORGANIZATION_SLUG=org.slug,
+        )
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert "limited to 3 active projects" in response.json()["message"]
+
+    def test_paid_tier_bypasses_project_limit(self, authenticated_client):
+        """Pro and Business plans have unlimited projects."""
+        for plan in ["pro", "business"]:
+            client, user, org = _org_client(authenticated_client)
+            org.plan = plan
+            org.save()
+
+            ProjectFactory.create_batch(3, organization=org)
+
+            response = client.post(
+                LIST_URL,
+                {"name": "4th Project", "description": "Test"},
+                HTTP_X_ORGANIZATION_SLUG=org.slug,
+            )
+            assert response.status_code == status.HTTP_201_CREATED
+
     def test_update_project(self, authenticated_client):
         client, user, org = _org_client(authenticated_client, role="member")
         project = ProjectFactory(organization=org)
