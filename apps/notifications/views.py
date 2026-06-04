@@ -19,6 +19,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from apps.accounts.permissions import IsOrgMember
+from apps.core.pagination import CreatedAtCursorPagination
 from apps.tasks.models import Attachment, Task, Project
 from .models import ExportJob, Notification
 from .serializers import (
@@ -57,6 +58,7 @@ class NotificationViewSet(
     """
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = CreatedAtCursorPagination
 
     def get_queryset(self):
         return (

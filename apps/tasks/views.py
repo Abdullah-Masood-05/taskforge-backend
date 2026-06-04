@@ -29,6 +29,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from apps.accounts.permissions import IsOrgAdmin, IsOrgMember
+from apps.core.pagination import CreatedAtCursorPagination
 from .filters import ProjectFilter, TaskFilter
 from .models import ActivityLog, Comment, Label, Project, SubTask, Task, TaskStatus
 from .serializers import (
@@ -418,6 +419,7 @@ class ActivityLogViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """Read-only activity feed for a task."""
 
     serializer_class = ActivityLogSerializer
+    pagination_class = CreatedAtCursorPagination
 
     def _get_task(self):
         return get_object_or_404(
