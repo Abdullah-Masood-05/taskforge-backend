@@ -69,7 +69,8 @@ class TestActivityLog:
 
         response = client.get(activity_url(task.pk), HTTP_X_ORGANIZATION_SLUG=org.slug)
         assert response.status_code == status.HTTP_200_OK
-        assert response.json()["count"] >= 1
+        # Cursor pagination: no "count"; assert on the results page instead.
+        assert len(response.json()["results"]) >= 1
 
     def test_activity_endpoint_cross_org_forbidden(self, authenticated_client):
         client, user, org, project = _setup(authenticated_client)

@@ -42,7 +42,8 @@ class TestNotificationList:
         client = make_client(user)
         resp = client.get("/api/v1/notifications/")
         assert resp.status_code == 200
-        assert resp.data["count"] == 3
+        # Cursor pagination: no "count", results carries the page.
+        assert len(resp.data["results"]) == 3
 
 
     def test_unread_count(self):
