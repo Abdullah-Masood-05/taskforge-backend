@@ -56,6 +56,9 @@ class Organization(models.Model):
     )
 
     # Billing
+    # Design decision: augmenting Organization with Stripe billing fields is
+    # sufficient for this project. A separate Subscription model would be needed
+    # for subscription history or multiple subscriptions per org.
     plan = models.CharField(
         _("plan"), max_length=20, choices=Plan.choices, default=Plan.FREE, db_index=True
     )
@@ -64,6 +67,28 @@ class Organization(models.Model):
     )
     stripe_subscription_id = models.CharField(
         _("Stripe subscription ID"), max_length=120, blank=True
+    )
+
+    class SubscriptionStatus(models.TextChoices):
+        ACTIVE     = "active",     _("Active")
+        TRIALING   = "trialing",   _("Trialing")
+        PAST_DUE   = "past_due",   _("Past Due")
+        CANCELED   = "canceled",   _("Canceled")
+        INCOMPLETE = "incomplete", _("Incomplete")
+
+    subscription_status = models.CharField(
+        _("subscription status"),
+        max_length=20,
+        choices=SubscriptionStatus.choices,
+        blank=True,
+        default="",
+        db_index=True,
+    )
+    current_period_end = models.DateTimeField(
+        _("current period end"),
+        null=True,
+        blank=True,
+        help_text=_("Stripe subscription period end — null for free plan."),
     )
 
     # Soft delete

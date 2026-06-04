@@ -108,6 +108,23 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         org = self.request.org
+
+        # Free-tier limit: max 3 active (non-archived, non-deleted) projects.
+        # Archived/deleted projects don't count — users can archive old projects
+        # without being blocked from creating new ones on a paid plan.
+        if org.plan == "free":
+            active_count = Project.objects.filter(
+                organization=org,
+                is_deleted=False,
+                archived=False,
+            ).count()
+            if active_count >= 3:
+                from rest_framework.exceptions import PermissionDenied
+                raise PermissionDenied(
+                    "Free plan is limited to 3 active projects. "
+                    "Upgrade to Pro or Business to create more."
+                )
+
         serializer.save(organization=org, owner=self.request.user)
         logger.info(
             "project_created",
