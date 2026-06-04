@@ -9,6 +9,16 @@ from sentry_sdk.integrations.redis import RedisIntegration
 
 DEBUG = False
 
+# ─────────────────────────────────────────────────────────────
+# CORS — production lockdown
+# Only the deployed frontend may call the API. Overrides the permissive
+# localhost defaults from base.py. CORS_ALLOWED_ORIGINS can still be widened
+# via env if multiple frontends are deployed.
+# ─────────────────────────────────────────────────────────────
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[FRONTEND_URL])  # noqa: F405
+CSRF_TRUSTED_ORIGINS = [FRONTEND_URL]  # noqa: F405
+
 # Security headers
 SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
