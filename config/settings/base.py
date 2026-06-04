@@ -274,6 +274,9 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_CLASSES": [
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
+        # ScopedRateThrottle is a no-op unless a view sets `throttle_scope`.
+        # Auth views (login/register) set throttle_scope="auth" -> 10/min.
+        "rest_framework.throttling.ScopedRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
         "anon": "100/hour",
