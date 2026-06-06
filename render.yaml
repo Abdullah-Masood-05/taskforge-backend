@@ -30,7 +30,7 @@ services:
     branch: main
     buildCommand: "./build.sh"
     startCommand: "daphne -b 0.0.0.0 -p $PORT config.asgi:application"
-    healthCheckPath: /api/v1/schema/
+    healthCheckPath: /health/
 
     envVars:
       # ── Django settings ───────────────────────────────────────────────────
