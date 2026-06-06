@@ -208,6 +208,35 @@ class TaskDetailSerializer(serializers.ModelSerializer):
     def get_reference_label(self, obj) -> str | None:
         return f"TASK-{obj.reference}" if obj.reference else None
 
+    def validate_assignee_id(self, value):
+        """Assignee must be a member of the current org (prevents FK 500s)."""
+        if value is None:
+            return value
+        request = self.context.get("request")
+        org = getattr(request, "org", None)
+        if org is None:
+            return value
+        from apps.organizations.models import Membership
+        if not Membership.objects.filter(organization=org, user_id=value).exists():
+            raise serializers.ValidationError(
+                "Assignee must be a member of this organization."
+            )
+        return value
+
+    def validate_status_id(self, value):
+        """Status column must belong to the task's project (prevents FK 500s)."""
+        if value is None:
+            return value
+        view = self.context.get("view")
+        project_pk = view.kwargs.get("project_pk") if view else None
+        if project_pk is None:
+            return value
+        if not TaskStatus.objects.filter(project_id=project_pk, id=value).exists():
+            raise serializers.ValidationError(
+                "Status column does not belong to this project."
+            )
+        return value
+
     def _set_actor(self, instance):
         """Attach the request user to the instance for signal attribution."""
         request = self.context.get("request")
