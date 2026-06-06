@@ -61,6 +61,7 @@ class OrganizationListSerializer(serializers.ModelSerializer):
 class MembershipSerializer(serializers.ModelSerializer):
     """Full membership detail including user info."""
 
+    user_id = serializers.UUIDField(source="user.id", read_only=True)
     user_email = serializers.EmailField(source="user.email", read_only=True)
     user_full_name = serializers.CharField(source="user.full_name", read_only=True)
     user_avatar = serializers.ImageField(source="user.avatar", read_only=True)
@@ -70,6 +71,7 @@ class MembershipSerializer(serializers.ModelSerializer):
         model = Membership
         fields = [
             "id",
+            "user_id",
             "user_email",
             "user_full_name",
             "user_avatar",
@@ -77,7 +79,7 @@ class MembershipSerializer(serializers.ModelSerializer):
             "invited_by_email",
             "joined_at",
         ]
-        read_only_fields = ["id", "user_email", "user_full_name", "invited_by_email", "joined_at"]
+        read_only_fields = ["id", "user_id", "user_email", "user_full_name", "invited_by_email", "joined_at"]
 
 
 class MembershipSummarySerializer(serializers.ModelSerializer):
