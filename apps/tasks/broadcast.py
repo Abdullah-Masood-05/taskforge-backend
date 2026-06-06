@@ -81,8 +81,32 @@ def sync_broadcast_task_event(
     """
     Synchronous wrapper around broadcast_task_event for use in Django signals.
 
-    NOTE: This blocks the calling thread while the Redis round-trip completes.
-    Future optimization: dispatch to a Celery task instead so the HTTP response
-    returns immediately and the broadcast happens out-of-band.
+    Resilient by design: broadcast failures MUST NOT crash the HTTP response.
+    Under Daphne/ASGI on Windows, async_to_sync can raise RuntimeError when
+    there is already a running event loop in the calling thread. We catch all
+    exceptions so the primary DB write still commits cleanly.
     """
-    async_to_sync(broadcast_task_event)(project_id, event_type, task_data, task_id)
+    import asyncio
+
+    try:
+        # If called from inside a running event loop (e.g. async Django handler),
+        # schedule the coroutine on that loop instead of creating a new one.
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            asyncio.run_coroutine_threadsafe(
+                broadcast_task_event(project_id, event_type, task_data, task_id),
+                loop,
+            )
+            return
+    except RuntimeError:
+        pass
+
+    try:
+        async_to_sync(broadcast_task_event)(project_id, event_type, task_data, task_id)
+    except Exception as exc:
+        logger.error(
+            "sync_broadcast_failed",
+            event_type=event_type,
+            task_id=task_id,
+            error=str(exc),
+        )
