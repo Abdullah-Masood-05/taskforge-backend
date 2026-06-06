@@ -3,3 +3,6 @@
 # WSGI/ASGI servers
 gunicorn==23.0.0
 uvicorn[standard]==0.32.1
+
+# Static file serving fallback when S3 is not configured
+whitenoise[brotli]==6.8.2
