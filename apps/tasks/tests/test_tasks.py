@@ -168,8 +168,8 @@ class TestTaskFiltering:
     def test_filter_by_assignee(self, authenticated_client):
         client, user, org, project = _setup(authenticated_client)
         other_user = UserFactory()
-        TaskFactory(project=project, assignee=user)
-        TaskFactory(project=project, assignee=other_user)
+        TaskFactory(project=project, assignees=[user])
+        TaskFactory(project=project, assignees=[other_user])
 
         response = client.get(
             tasks_list_url(project.pk) + f"?assignee={user.pk}",
@@ -179,8 +179,8 @@ class TestTaskFiltering:
 
     def test_filter_unassigned(self, authenticated_client):
         client, user, org, project = _setup(authenticated_client)
-        TaskFactory(project=project, assignee=None)
-        TaskFactory(project=project, assignee=user)
+        TaskFactory(project=project)
+        TaskFactory(project=project, assignees=[user])
 
         response = client.get(
             tasks_list_url(project.pk) + "?unassigned=true",

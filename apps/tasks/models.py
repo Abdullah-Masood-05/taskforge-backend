@@ -26,9 +26,9 @@ Design decisions:
 import uuid
 
 from django.conf import settings
+from django.core.validators import MaxValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-
 
 # ─────────────────────────────────────────────────────────────
 # Enums / Choices
@@ -39,6 +39,13 @@ class Priority(models.TextChoices):
     MEDIUM = "medium", _("Medium")
     HIGH   = "high",   _("High")
     URGENT = "urgent", _("Urgent")
+
+
+class ProjectStatus(models.TextChoices):
+    PLANNING    = "planning",    _("Planning")
+    IN_PROGRESS = "in_progress", _("In Progress")
+    ON_HOLD     = "on_hold",     _("On Hold")
+    COMPLETED   = "completed",   _("Completed")
 
 
 # ─────────────────────────────────────────────────────────────
@@ -72,6 +79,32 @@ class Project(models.Model):
         verbose_name=_("owner"),
     )
 
+    # Planning metadata (drives the project header + dashboard)
+    status = models.CharField(
+        _("status"),
+        max_length=20,
+        choices=ProjectStatus.choices,
+        default=ProjectStatus.PLANNING,
+        db_index=True,
+    )
+    priority = models.CharField(
+        _("priority"),
+        max_length=10,
+        choices=Priority.choices,
+        default=Priority.MEDIUM,
+    )
+    due_date = models.DateField(_("due date"), null=True, blank=True)
+    progress_override = models.PositiveSmallIntegerField(
+        _("progress override"),
+        null=True,
+        blank=True,
+        validators=[MaxValueValidator(100)],
+        help_text=_(
+            "Manually pinned progress (0–100). When null, progress is computed "
+            "from the share of tasks sitting in a terminal status column."
+        ),
+    )
+
     # State flags
     archived = models.BooleanField(_("archived"), default=False, db_index=True)
     is_deleted = models.BooleanField(_("deleted"), default=False, db_index=True)
@@ -91,6 +124,25 @@ class Project(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    @property
+    def progress_percent(self) -> int:
+        """
+        Completion percentage for the project header progress bar.
+
+        progress_override wins when set; otherwise computed as the share of
+        non-deleted tasks whose status column is flagged is_terminal.
+        """
+        if self.progress_override is not None:
+            return self.progress_override
+        agg = self.tasks.filter(is_deleted=False).aggregate(
+            total=models.Count("id"),
+            done=models.Count("id", filter=models.Q(status__is_terminal=True)),
+        )
+        total = agg["total"] or 0
+        if not total:
+            return 0
+        return round(agg["done"] * 100 / total)
 
     def soft_delete(self):
         from django.utils import timezone
@@ -127,6 +179,14 @@ class TaskStatus(models.Model):
         verbose_name=_("project"),
     )
     order = models.PositiveIntegerField(_("order"), default=0, db_index=True)
+    is_terminal = models.BooleanField(
+        _("terminal"),
+        default=False,
+        help_text=_(
+            "Tasks in this column count as completed for project progress "
+            "and velocity analytics (e.g. a 'Done' column)."
+        ),
+    )
 
     class Meta:
         verbose_name = _("task status")
@@ -220,13 +280,11 @@ class Task(models.Model):
         related_name="tasks",
         verbose_name=_("status"),
     )
-    assignee = models.ForeignKey(
+    assignees = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True,
         blank=True,
         related_name="assigned_tasks",
-        verbose_name=_("assignee"),
+        verbose_name=_("assignees"),
     )
     labels = models.ManyToManyField(
         Label,
@@ -235,7 +293,17 @@ class Task(models.Model):
         verbose_name=_("labels"),
     )
 
+    start_date = models.DateField(_("start date"), null=True, blank=True)
     due_date = models.DateField(_("due date"), null=True, blank=True)
+    progress_percent = models.PositiveSmallIntegerField(
+        _("progress percent"),
+        default=0,
+        validators=[MaxValueValidator(100)],
+        help_text=_(
+            "Manual completion indicator (0–100) shown on cards while the "
+            "task sits in a non-terminal column."
+        ),
+    )
     priority = models.CharField(
         _("priority"),
         max_length=10,
@@ -261,12 +329,26 @@ class Task(models.Model):
             models.Index(fields=["project", "status"], name="task_project_status_idx"),
             models.Index(fields=["project", "order"], name="task_project_order_idx"),
             models.Index(fields=["project", "priority"], name="task_project_priority_idx"),
-            models.Index(fields=["assignee"], name="task_assignee_idx"),
         ]
 
     def __str__(self) -> str:
         ref = f"TASK-{self.reference}" if self.reference else str(self.id)[:8]
         return f"{ref}: {self.title}"
+
+    @property
+    def assignee(self):
+        """
+        First assignee (by assignment order), for backward compatibility with
+        single-assignee clients. Prefer `assignees` in new code.
+        """
+        link = (
+            self.assignees.through.objects
+            .filter(task=self)
+            .order_by("id")
+            .select_related("user")
+            .first()
+        )
+        return link.user if link else None
 
     def soft_delete(self):
         from django.utils import timezone

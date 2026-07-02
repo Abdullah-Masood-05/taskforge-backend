@@ -47,10 +47,15 @@ class TaskFactory(DjangoModelFactory):
     description = factory.Faker("paragraph")
     project = factory.SubFactory(ProjectFactory)
     status = factory.SubFactory(TaskStatusFactory, project=factory.SelfAttribute("..project"))
-    assignee = None
     priority = "medium"
     order = factory.Sequence(lambda n: n * 1000)
     is_deleted = False
+
+    @factory.post_generation
+    def assignees(self, create, extracted, **kwargs):
+        """Usage: TaskFactory(assignees=[user1, user2])"""
+        if create and extracted:
+            self.assignees.set(extracted)
 
 
 class SubTaskFactory(DjangoModelFactory):

@@ -122,17 +122,14 @@ class TestTaskAssignmentSignal:
             title="Fix bug",
             project=project,
             status=status_col,
-            assignee=assignee,
         )
         task._actor = owner
+        task.assignees.add(assignee)
 
-        # Manually trigger signal behaviour via save
-        Notification.objects.filter(recipient=assignee, verb="task_assigned").count()
-
-        # The signal fires on post_save during Task.objects.create
+        # The signal fires on m2m post_add
         assert Notification.objects.filter(
             recipient=assignee, verb="task_assigned"
-        ).count() >= initial_count
+        ).count() == initial_count + 1
 
     def test_welcome_notification_on_user_creation(self):
         user = UserFactory()

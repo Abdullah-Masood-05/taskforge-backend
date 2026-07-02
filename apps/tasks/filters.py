@@ -3,7 +3,8 @@ django-filter FilterSets for the tasks app.
 """
 import django_filters
 from django.db.models import Q
-from .models import Task, Project
+
+from .models import Project, Task
 
 
 class TaskFilter(django_filters.FilterSet):
@@ -22,7 +23,7 @@ class TaskFilter(django_filters.FilterSet):
       ?unassigned=true
     """
     status    = django_filters.UUIDFilter(field_name="status__id")
-    assignee  = django_filters.UUIDFilter(field_name="assignee__id")
+    assignee  = django_filters.UUIDFilter(field_name="assignees__id")
     priority  = django_filters.ChoiceFilter(
         choices=[("low", "Low"), ("medium", "Medium"), ("high", "High"), ("urgent", "Urgent")]
     )
@@ -30,7 +31,7 @@ class TaskFilter(django_filters.FilterSet):
     due_before = django_filters.DateFilter(field_name="due_date", lookup_expr="lte")
     due_after  = django_filters.DateFilter(field_name="due_date", lookup_expr="gte")
     unassigned = django_filters.BooleanFilter(
-        field_name="assignee", lookup_expr="isnull", label="Unassigned only"
+        field_name="assignees", lookup_expr="isnull", label="Unassigned only"
     )
     search = django_filters.CharFilter(method="filter_search", label="Search")
 

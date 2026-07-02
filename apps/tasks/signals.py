@@ -11,9 +11,10 @@ Performance note: sync_broadcast_task_event calls async_to_sync() inside a sync
 signal, adding ~1-3 ms per task mutation. Candidate for a future Celery-based
 out-of-band optimization.
 """
-import structlog
 import threading
-from django.db.models.signals import post_delete, post_save, pre_save
+
+import structlog
+from django.db.models.signals import m2m_changed, post_delete, post_save, pre_save
 from django.dispatch import receiver
 
 logger = structlog.get_logger(__name__)
@@ -53,12 +54,15 @@ def set_task_reference(sender, instance, created, **kwargs):
 # ─────────────────────────────────────────────────────────────
 
 # Fields we want to track. Each entry: (field_name, verb)
+# Assignees are M2M and tracked separately via m2m_changed (see
+# log_assignees_changed below).
 TRACKED_FIELDS = [
-    ("status_id",   "status_changed"),
-    ("assignee_id", "assignee_changed"),
-    ("priority",    "priority_changed"),
-    ("title",       "title_changed"),
-    ("due_date",    "due_date_changed"),
+    ("status_id",        "status_changed"),
+    ("priority",         "priority_changed"),
+    ("title",            "title_changed"),
+    ("due_date",         "due_date_changed"),
+    ("start_date",       "start_date_changed"),
+    ("progress_percent", "progress_changed"),
 ]
 
 # Thread-local storage to pass pre-save state into post-save
@@ -94,23 +98,13 @@ def log_task_activity(sender, instance, created, **kwargs):
     The viewset sets `instance._actor` before calling save() so the signal
     can attribute the change. Falls back to None for non-request changes.
     """
-    from apps.tasks.models import ActivityLog
     from apps.tasks.broadcast import sync_broadcast_task_event
+    from apps.tasks.models import ActivityLog
 
     actor = getattr(instance, "_actor", None)
 
     def _task_payload():
-        return {
-            "id": str(instance.pk),
-            "title": instance.title,
-            "priority": instance.priority,
-            "status_id": str(instance.status_id) if instance.status_id else None,
-            "order": instance.order,
-            "due_date": instance.due_date.isoformat() if instance.due_date else None,
-            "reference_label": f"TASK-{instance.reference}" if instance.reference else None,
-            "is_deleted": instance.is_deleted,
-            "project_id": str(instance.project_id),
-        }
+        return _build_task_payload(instance)
 
     if created:
         ActivityLog.objects.create(
@@ -128,7 +122,7 @@ def log_task_activity(sender, instance, created, **kwargs):
                 task_id=str(instance.pk),
             )
         except Exception as exc:
-            logger.error("broadcast_signal_failed", event="task.created", task_id=str(instance.pk), error=str(exc))
+            logger.error("broadcast_signal_failed", ws_event="task.created", task_id=str(instance.pk), error=str(exc))
         return
 
     old = getattr(_pre_save_state, "old", None)
@@ -168,7 +162,7 @@ def log_task_activity(sender, instance, created, **kwargs):
                 task_id=str(instance.pk),
             )
         except Exception as exc:
-            logger.error("broadcast_signal_failed", event=event_type, task_id=str(instance.pk), error=str(exc))
+            logger.error("broadcast_signal_failed", ws_event=event_type, task_id=str(instance.pk), error=str(exc))
 
 
 @receiver(post_delete, sender="tasks.Task")
@@ -183,12 +177,96 @@ def broadcast_task_deleted(sender, instance, **kwargs):
             task_id=str(instance.pk),
         )
     except Exception as exc:
-        logger.error("broadcast_signal_failed", event="task.deleted", task_id=str(instance.pk), error=str(exc))
+        logger.error("broadcast_signal_failed", ws_event="task.deleted", task_id=str(instance.pk), error=str(exc))
+
+
+# ─────────────────────────────────────────────────────────────
+# 3. Assignees (M2M) — activity log + board broadcast
+# ─────────────────────────────────────────────────────────────
+
+@receiver(m2m_changed, sender="tasks.Task_assignees")
+def log_assignees_changed(sender, instance, action, reverse, pk_set, **kwargs):
+    """
+    Write an ActivityLog entry and broadcast task.updated whenever the
+    assignee set of a task changes (add / remove / clear).
+
+    pre_save/post_save cannot see M2M mutations, hence this handler.
+    """
+    if reverse or action not in ("post_add", "post_remove", "post_clear"):
+        return
+
+    from django.contrib.auth import get_user_model
+
+    from apps.tasks.broadcast import sync_broadcast_task_event
+    from apps.tasks.models import ActivityLog
+
+    actor = getattr(instance, "_actor", None)
+
+    if action == "post_clear":
+        change = {"cleared": True}
+    else:
+        emails = list(
+            get_user_model().objects
+            .filter(pk__in=pk_set or [])
+            .values_list("email", flat=True)
+        )
+        if not emails:
+            return
+        key = "added" if action == "post_add" else "removed"
+        change = {key: emails}
+
+    ActivityLog.objects.create(
+        task=instance,
+        actor=actor,
+        verb="assignees_changed",
+        old_value=None,
+        new_value=change,
+    )
+
+    try:
+        sync_broadcast_task_event(
+            project_id=str(instance.project_id),
+            event_type="task.updated",
+            task_data=_build_task_payload(instance),
+            task_id=str(instance.pk),
+        )
+    except Exception as exc:
+        logger.error(
+            "broadcast_signal_failed",
+            ws_event="task.updated",
+            task_id=str(instance.pk),
+            error=str(exc),
+        )
 
 
 # ─────────────────────────────────────────────────────────────
 # Helpers
 # ─────────────────────────────────────────────────────────────
+
+def _build_task_payload(instance) -> dict:
+    """Minimal card payload pushed to board WebSocket clients."""
+    return {
+        "id": str(instance.pk),
+        "title": instance.title,
+        "priority": instance.priority,
+        "status_id": str(instance.status_id) if instance.status_id else None,
+        "order": instance.order,
+        "start_date": instance.start_date.isoformat() if instance.start_date else None,
+        "due_date": instance.due_date.isoformat() if instance.due_date else None,
+        "progress_percent": instance.progress_percent,
+        "reference_label": f"TASK-{instance.reference}" if instance.reference else None,
+        "is_deleted": instance.is_deleted,
+        "project_id": str(instance.project_id),
+        "assignees": [
+            {
+                "id": str(u.id),
+                "email": u.email,
+                "full_name": u.full_name,
+                "avatar_url": u.avatar_url or (u.avatar.url if u.avatar else None),
+            }
+            for u in instance.assignees.all()
+        ],
+    }
 
 def _broadcast_task(instance, event_type: str) -> None:
     """

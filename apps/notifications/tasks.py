@@ -10,7 +10,6 @@ import structlog
 from celery import shared_task
 from django.conf import settings
 from django.core.mail import send_mail
-from django.template.loader import render_to_string
 from django.utils import timezone
 
 logger = structlog.get_logger(__name__)
@@ -51,6 +50,7 @@ def send_welcome_email(self, user_id):
 def send_task_assignment_email(self, task_id, assignee_id, assigner_id=None):
     """Send an email when a task is assigned to a user."""
     from django.contrib.auth import get_user_model
+
     from apps.tasks.models import Task
 
     User = get_user_model()
@@ -106,6 +106,7 @@ def send_daily_digest(self):
     Groups notifications by recipient and sends one email per user.
     """
     from django.contrib.auth import get_user_model
+
     from apps.notifications.models import Notification
 
     User = get_user_model()
@@ -165,8 +166,8 @@ def generate_project_report(self, export_job_id):
     Uses reportlab — pure Python, no system dependencies.
     """
     from apps.notifications.models import ExportJob
-    from apps.tasks.models import Task, TaskStatus
     from apps.notifications.storage import generate_file_key, save_file_locally
+    from apps.tasks.models import Task, TaskStatus
 
     try:
         job = ExportJob.objects.select_related("project", "organization").get(pk=export_job_id)
@@ -187,7 +188,8 @@ def generate_project_report(self, export_job_id):
         tasks = (
             Task.objects
             .filter(project=project, is_deleted=False)
-            .select_related("status", "assignee")
+            .select_related("status")
+            .prefetch_related("assignees")
             .order_by("status__order", "order")
         )
 
@@ -231,12 +233,17 @@ def generate_project_report(self, export_job_id):
 def _build_pdf(project, org, statuses, tasks):
     """Build a PDF report using reportlab and return bytes."""
     import io
+
     from reportlab.lib import colors
     from reportlab.lib.pagesizes import A4
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
     from reportlab.lib.units import inch
     from reportlab.platypus import (
-        SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak,
+        Paragraph,
+        SimpleDocTemplate,
+        Spacer,
+        Table,
+        TableStyle,
     )
 
     buffer = io.BytesIO()
@@ -320,7 +327,7 @@ def _build_pdf(project, org, statuses, tasks):
     table_data = [["Ref", "Title", "Assignee", "Priority", "Status", "Due"]]
     for t in tasks:
         ref = f"TASK-{t.reference}" if t.reference else "—"
-        assignee = t.assignee.full_name if t.assignee else "Unassigned"
+        assignee = ", ".join(u.full_name for u in t.assignees.all()) or "Unassigned"
         status_name = t.status.name if t.status else "—"
         due = str(t.due_date) if t.due_date else "—"
         # Truncate long titles

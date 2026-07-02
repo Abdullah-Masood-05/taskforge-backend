@@ -57,8 +57,8 @@ class TestAssignmentEmail:
             title="Fix bug",
             project=project,
             status=status_col,
-            assignee=assignee,
         )
+        task.assignees.add(assignee)
 
         mail.outbox.clear()
         send_task_assignment_email(str(task.id), str(assignee.id), str(owner.id))
@@ -116,7 +116,8 @@ class TestReportGeneration:
         MembershipFactory(user=owner, organization=org, role="admin")
         project = Project.objects.create(name="Report Project", organization=org, owner=owner)
         status_col = TaskStatus.objects.create(name="Done", project=project, order=0)
-        Task.objects.create(title="Task A", project=project, status=status_col, assignee=owner)
+        task_a = Task.objects.create(title="Task A", project=project, status=status_col)
+        task_a.assignees.add(owner)
         Task.objects.create(title="Task B", project=project, status=status_col)
 
         job = ExportJob.objects.create(
