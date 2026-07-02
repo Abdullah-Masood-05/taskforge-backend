@@ -88,6 +88,7 @@ class UserSerializer(serializers.ModelSerializer):
             "last_name",
             "full_name",
             "avatar",
+            "avatar_url",
             "bio",
             "timezone",
             "is_verified",

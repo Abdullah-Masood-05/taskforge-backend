@@ -5,6 +5,7 @@ Always created BEFORE the first migration — replacing it later is extremely pa
 We extend AbstractBaseUser + PermissionsMixin for maximum flexibility.
 """
 import uuid
+
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 from django.utils import timezone as dj_timezone
@@ -53,6 +54,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     # Profile extras
     avatar = models.ImageField(
         _("avatar"), upload_to="avatars/%Y/%m/", null=True, blank=True
+    )
+    avatar_url = models.URLField(
+        _("avatar URL"),
+        blank=True,
+        default="",
+        help_text=_(
+            "External avatar URL (e.g. a Gravatar/pravatar link). Takes "
+            "precedence over the uploaded avatar file when set."
+        ),
     )
     bio = models.TextField(_("bio"), blank=True, max_length=500)
     timezone = models.CharField(
