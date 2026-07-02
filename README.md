@@ -90,8 +90,34 @@ python manage.py migrate
 python manage.py seed
 
 # 5. Start the development server
-python manage.py runserver
+C:\Users\Abdullah Masood\Documents\Installer\Rectify11Installe
 ```
+
+---
+
+## Demo / Screenshot Data
+`seed` creates the org and users; `seed_demo_project` fills it with a large,
+realistic showcase board — **"Platform Relaunch Q1"** — built to fully populate
+the project dashboard (Kanban columns, timeline, velocity chart, priority
+distribution and activity feed):
+
+```bash
+python manage.py seed_demo_project --large-project --reset
+```
+
+What it seeds:
+- 8 demo team members with stable avatar URLs (deterministic per email)
+- 5 columns (Backlog, To-Do, In Progress, In Review, Done — Done is terminal)
+- 7 colored labels and ~150 tasks with 1–3 assignees, labels, priorities,
+  start/due dates spread over the next 8 months, and progress on
+  in-progress cards
+- ~200 backfilled activity-log entries across the past weeks, so the
+  activity feed and velocity chart have data immediately
+
+Flags: `--large-project` seeds the full ~150-task board (default ~50);
+`--reset` deletes and recreates just this demo project, leaving all other
+orgs/projects untouched. Log in as `admin@taskforge.dev` and open the
+project board to see the populated dashboard.
 
 ---
 
