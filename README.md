@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/logo.svg" alt="TaskForge logo" width="110"/>
+</p>
+
 # TaskForge Backend
 
 [![CI](https://github.com/Abdullah-Masood-05/taskforge-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/Abdullah-Masood-05/taskforge-backend/actions)  
