@@ -5,8 +5,14 @@
 <h1 align="center">TaskForge Backend</h1>
 
 <p align="center">
-  <a href="https://github.com/Abdullah-Masood-05/taskforge-backend/actions"><img src="https://github.com/Abdullah-Masood-05/taskforge-backend/actions/workflows/ci.yml/badge.svg" alt="CI"/></a>
-  <a href="https://codecov.io/gh/Abdullah-Masood-05/taskforge-backend"><img src="https://codecov.io/gh/Abdullah-Masood-05/taskforge-backend/branch/main/graph/badge.svg" alt="Code coverage"/></a>
+  <a href="https://www.python.org"><img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white" alt="Python"/></a>
+  <a href="https://www.djangoproject.com"><img src="https://img.shields.io/badge/Django-5-092E20?logo=django&logoColor=white" alt="Django"/></a>
+  <a href="https://www.django-rest-framework.org"><img src="https://img.shields.io/badge/DRF-3.15-A30000?logo=django&logoColor=white" alt="Django REST Framework"/></a>
+  <a href="https://www.postgresql.org"><img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL"/></a>
+  <a href="https://redis.io"><img src="https://img.shields.io/badge/Redis-7-FF4438?logo=redis&logoColor=white" alt="Redis"/></a>
+  <a href="https://www.docker.com"><img src="https://img.shields.io/badge/Docker-compose-2496ED?logo=docker&logoColor=white" alt="Docker"/></a>
+  <a href="https://docs.pytest.org"><img src="https://img.shields.io/badge/tests-pytest-0A9EDC?logo=pytest&logoColor=white" alt="pytest"/></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-22c55e" alt="MIT license"/></a>
 </p>
 
 ---
@@ -96,7 +102,7 @@ python manage.py migrate
 python manage.py seed
 
 # 5. Start the development server
-C:\Users\Abdullah Masood\Documents\Installer\Rectify11Installe
+python manage.py runserver
 ```
 
 ---
