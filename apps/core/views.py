@@ -4,13 +4,14 @@ Core app views: health check endpoint.
 import redis
 from django.conf import settings
 from django.db import connection
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
+@throttle_classes([])  # platform health probes fire every few seconds — never throttle
 def health_check(request):
     """
     GET /api/v1/health/
