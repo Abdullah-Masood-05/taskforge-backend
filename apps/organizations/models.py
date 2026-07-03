@@ -5,6 +5,7 @@ Every resource in the system hangs off an Organization FK.
 Membership binds a User to an Organization with a specific role.
 """
 import uuid
+
 from django.conf import settings
 from django.db import models
 from django.utils.text import slugify
@@ -217,14 +218,18 @@ class Invitation(models.Model):
         related_name="invitations",
     )
     email = models.EmailField(_("email"), db_index=True)
-    role = models.CharField(_("role"), max_length=20, choices=MemberRole.choices, default=MemberRole.MEMBER)
+    role = models.CharField(
+        _("role"), max_length=20, choices=MemberRole.choices, default=MemberRole.MEMBER
+    )
     invited_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="outgoing_invitations",
     )
     token = models.UUIDField(_("token"), default=uuid.uuid4, unique=True, db_index=True)
-    status = models.CharField(_("status"), max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
+    status = models.CharField(
+        _("status"), max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING
+    )
     expires_at = models.DateTimeField(_("expires at"))
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
 

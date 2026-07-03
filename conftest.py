@@ -22,12 +22,12 @@ def _reset_throttle_cache():
     """
     try:
         cache.clear()
-    except Exception:
+    except Exception:  # noqa: S110
         pass
     yield
     try:
         cache.clear()
-    except Exception:
+    except Exception:  # noqa: S110
         pass
 
 

@@ -3,13 +3,14 @@ URL patterns for the accounts app.
 All JWT operations are handled by our own views.
 """
 from django.urls import path
+
 from .views import (
-    RegisterView,
+    ChangePasswordView,
     LoginView,
-    TokenRefreshView,
     LogoutView,
     MeView,
-    ChangePasswordView,
+    RegisterView,
+    TokenRefreshView,
 )
 
 urlpatterns = [

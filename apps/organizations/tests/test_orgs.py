@@ -3,6 +3,7 @@ Organization and membership permission tests.
 """
 import pytest
 from rest_framework import status
+
 from .factories import MembershipFactory, OrganizationFactory, UserFactory
 
 pytestmark = pytest.mark.django_db
@@ -22,7 +23,7 @@ class TestOrganizationCRUD:
         assert data["name"] == "My New Org"
         assert "slug" in data
         # Creator should automatically be admin
-        from apps.organizations.models import Membership, MemberRole
+        from apps.organizations.models import MemberRole, Membership
         assert Membership.objects.filter(
             user=user, organization__slug=data["slug"], role=MemberRole.ADMIN
         ).exists()

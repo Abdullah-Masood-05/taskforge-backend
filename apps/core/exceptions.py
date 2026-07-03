@@ -11,8 +11,6 @@ Every error from the API will have this shape:
 """
 import structlog
 from rest_framework.views import exception_handler
-from rest_framework.response import Response
-from rest_framework import status
 
 logger = structlog.get_logger(__name__)
 

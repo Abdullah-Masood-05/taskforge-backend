@@ -4,8 +4,9 @@ Project endpoint tests — CRUD, soft-delete, archive, cross-org isolation.
 import pytest
 from rest_framework import status
 
-from apps.accounts.tests.factories import MembershipFactory, UserFactory
-from .factories import ProjectFactory, TaskFactory, TaskStatusFactory
+from apps.accounts.tests.factories import MembershipFactory
+
+from .factories import ProjectFactory, TaskStatusFactory
 
 pytestmark = pytest.mark.django_db
 

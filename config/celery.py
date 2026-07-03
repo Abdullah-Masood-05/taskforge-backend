@@ -3,6 +3,7 @@ Celery application entry point.
 Referenced by config/__init__.py so Celery is loaded when Django starts.
 """
 import os
+
 from celery import Celery
 from celery.schedules import crontab
 

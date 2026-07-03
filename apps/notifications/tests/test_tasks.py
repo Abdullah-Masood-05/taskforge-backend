@@ -18,7 +18,6 @@ from apps.notifications.tasks import (
 )
 from apps.tasks.models import Project, Task, TaskStatus
 
-
 # ─────────────────────────────────────────────────────────────
 # Email tasks
 # ─────────────────────────────────────────────────────────────
@@ -109,6 +108,7 @@ class TestDailyDigest:
 class TestReportGeneration:
     def test_generates_pdf_and_completes_job(self):
         import os
+
         from django.conf import settings
 
         owner = UserFactory()

@@ -6,26 +6,27 @@ Design note:
 - MemberViewSet is nested under /organizations/{slug}/members/.
 - Permission classes from apps.accounts.permissions enforce RBAC.
 """
-import structlog
 from datetime import timedelta
 
+import structlog
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from rest_framework import status, viewsets, mixins
+from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from apps.accounts.permissions import IsOrgAdmin, IsOrgAdminOrReadOnly, IsOrgMember
-from .models import Invitation, Membership, MemberRole, Organization
+from apps.accounts.permissions import IsOrgAdmin, IsOrgMember
+
+from .models import Invitation, MemberRole, Membership, Organization
 from .serializers import (
-    InviteMemberSerializer,
     InvitationSerializer,
+    InviteMemberSerializer,
     MembershipSerializer,
-    OrganizationSerializer,
     OrganizationListSerializer,
+    OrganizationSerializer,
     UpdateMemberRoleSerializer,
 )
 

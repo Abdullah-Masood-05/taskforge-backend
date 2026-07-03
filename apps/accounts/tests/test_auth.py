@@ -4,12 +4,10 @@ Auth endpoint tests — register, login, refresh, logout, me, change-password.
 pytest-django + factory_boy. No mocking needed for core auth.
 """
 import pytest
-from django.urls import reverse
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .factories import UserFactory
-
 
 pytestmark = pytest.mark.django_db
 
@@ -34,7 +32,7 @@ class TestRegister:
         assert data["user"]["email"] == "newuser@example.com"
 
     def test_register_duplicate_email(self, api_client):
-        user = UserFactory(email="existing@example.com")
+        UserFactory(email="existing@example.com")
         payload = {
             "email": "existing@example.com",
             "first_name": "Dupe",
@@ -73,7 +71,7 @@ class TestLogin:
     url = "/api/v1/auth/login/"
 
     def test_login_success(self, api_client):
-        user = UserFactory(email="login@example.com")
+        UserFactory(email="login@example.com")
         response = api_client.post(
             self.url, {"email": "login@example.com", "password": "TestPass123!"}
         )

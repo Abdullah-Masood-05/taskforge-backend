@@ -35,7 +35,7 @@ def _get_user_from_token(token_str):
     """
     from django.contrib.auth import get_user_model
 
-    User = get_user_model()
+    User = get_user_model()  # noqa: N806
     try:
         token = AccessToken(token_str)
         user_id = token["user_id"]
@@ -70,6 +70,6 @@ class JWTAuthMiddleware:
         return await self.inner(scope, receive, send)
 
 
-def JWTAuthMiddlewareStack(inner):
+def JWTAuthMiddlewareStack(inner):  # noqa: N802
     """Convenience wrapper analogous to AuthMiddlewareStack."""
     return JWTAuthMiddleware(inner)

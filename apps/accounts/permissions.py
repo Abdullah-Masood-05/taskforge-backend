@@ -7,8 +7,9 @@ before these are evaluated.
 
 Hierarchy:  OrgAdmin > OrgMember > OrgViewer
 """
-from rest_framework.permissions import BasePermission, IsAuthenticated
-from apps.organizations.models import Membership, MemberRole
+from rest_framework.permissions import IsAuthenticated
+
+from apps.organizations.models import MemberRole, Membership
 
 
 class IsOrgMember(IsAuthenticated):

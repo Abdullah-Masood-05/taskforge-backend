@@ -12,7 +12,7 @@ from django.db import migrations, models
 def copy_assignee_to_assignees(apps, schema_editor):
     """Copy each task's single assignee FK into the new assignees M2M."""
     Task = apps.get_model("tasks", "Task")
-    Through = Task.assignees.through
+    Through = Task.assignees.through  # noqa: N806
     links = [
         Through(task_id=task_id, user_id=user_id)
         for task_id, user_id in (
@@ -25,7 +25,7 @@ def copy_assignee_to_assignees(apps, schema_editor):
 def copy_assignees_to_assignee(apps, schema_editor):
     """Reverse: restore the first (earliest-added) assignee into the FK."""
     Task = apps.get_model("tasks", "Task")
-    Through = Task.assignees.through
+    Through = Task.assignees.through  # noqa: N806
     first_per_task = {}
     for task_id, user_id in Through.objects.order_by("id").values_list("task_id", "user_id"):
         first_per_task.setdefault(task_id, user_id)

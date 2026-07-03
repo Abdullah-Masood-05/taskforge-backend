@@ -5,6 +5,7 @@ import pytest
 from rest_framework import status
 
 from apps.accounts.tests.factories import MembershipFactory
+
 from .factories import ProjectFactory, TaskFactory, TaskStatusFactory
 
 pytestmark = pytest.mark.django_db
@@ -28,7 +29,7 @@ def task_move_url(project_pk, task_pk):
 
 class TestActivityLog:
     def test_task_creation_logs_created_event(self, authenticated_client):
-        from apps.tasks.models import ActivityLog, Task
+        from apps.tasks.models import ActivityLog
         client, user, org, project = _setup(authenticated_client)
         s = TaskStatusFactory(project=project)
 
@@ -65,7 +66,9 @@ class TestActivityLog:
         client, user, org, project = _setup(authenticated_client)
         task = TaskFactory(project=project)
         # Manually create a log entry
-        ActivityLog.objects.create(task=task, actor=user, verb="created", new_value={"title": task.title})
+        ActivityLog.objects.create(
+            task=task, actor=user, verb="created", new_value={"title": task.title}
+        )
 
         response = client.get(activity_url(task.pk), HTTP_X_ORGANIZATION_SLUG=org.slug)
         assert response.status_code == status.HTTP_200_OK

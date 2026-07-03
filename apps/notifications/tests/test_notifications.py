@@ -2,8 +2,6 @@
 Tests for notification API endpoints and task assignment signals.
 """
 import pytest
-from django.core import mail
-from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -14,7 +12,7 @@ from apps.accounts.tests.factories import (
 )
 from apps.notifications.models import Notification
 from apps.notifications.tests.factories import NotificationFactory
-from apps.tasks.models import Task, TaskStatus, Project
+from apps.tasks.models import Project, Task, TaskStatus
 
 
 def make_client(user):

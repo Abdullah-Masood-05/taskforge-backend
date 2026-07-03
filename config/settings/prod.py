@@ -13,11 +13,12 @@ Key differences from dev:
 """
 import os
 
-from .base import *  # noqa: F401, F403
 import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
+
+from .base import *  # noqa: F401, F403
 
 DEBUG = False
 

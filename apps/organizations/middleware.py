@@ -12,6 +12,7 @@ on every request if the URL already contains the slug.
 """
 import structlog
 from django.utils.deprecation import MiddlewareMixin
+
 from .models import Organization
 
 logger = structlog.get_logger(__name__)
@@ -76,7 +77,7 @@ class CurrentOrgMiddleware(MiddlewareMixin):
             slug = match.kwargs.get("slug")
             if slug:
                 return slug
-        except Exception:
+        except Exception:  # noqa: S110
             pass
 
         # 2. Header fallback

@@ -8,10 +8,11 @@ Creates a complete demo dataset for local development and manual testing:
 
 Run this after running migrations. Safe to run multiple times (idempotent).
 """
-from django.core.management.base import BaseCommand
-from django.contrib.auth import get_user_model
-from django.utils import timezone
 from datetime import timedelta
+
+from django.contrib.auth import get_user_model
+from django.core.management.base import BaseCommand
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -35,7 +36,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        from apps.organizations.models import Invitation, Membership, MemberRole, Organization
+        from apps.organizations.models import Invitation, MemberRole, Membership, Organization
 
         if options["reset"]:
             self.stdout.write(self.style.WARNING("Resetting demo data..."))
@@ -103,7 +104,9 @@ class Command(BaseCommand):
             },
         )
         if created:
-            self.stdout.write(f"  [+] Created organization: {self.ORG_NAME} (slug: {self.ORG_SLUG})")
+            self.stdout.write(
+                f"  [+] Created organization: {self.ORG_NAME} (slug: {self.ORG_SLUG})"
+            )
         else:
             self.stdout.write(f"  [=] Organization already exists: {self.ORG_NAME}")
 

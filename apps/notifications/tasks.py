@@ -20,7 +20,7 @@ def send_welcome_email(self, user_id):
     """Send a welcome email to a newly registered user."""
     from django.contrib.auth import get_user_model
 
-    User = get_user_model()
+    User = get_user_model()  # noqa: N806
     try:
         user = User.objects.get(pk=user_id)
     except User.DoesNotExist:
@@ -53,7 +53,7 @@ def send_task_assignment_email(self, task_id, assignee_id, assigner_id=None):
 
     from apps.tasks.models import Task
 
-    User = get_user_model()
+    User = get_user_model()  # noqa: N806
     try:
         task = Task.objects.select_related("project").get(pk=task_id)
         assignee = User.objects.get(pk=assignee_id)
@@ -109,7 +109,7 @@ def send_daily_digest(self):
 
     from apps.notifications.models import Notification
 
-    User = get_user_model()
+    User = get_user_model()  # noqa: N806
 
     # Find users with unread notifications from the last 24 hours
     since = timezone.now() - timezone.timedelta(hours=24)
@@ -137,7 +137,8 @@ def send_daily_digest(self):
             continue
 
         lines = [f"  • {n.description}" for n in notifications]
-        subject = f"[TaskForge] You have {len(lines)} unread notification{'s' if len(lines) != 1 else ''}"
+        plural = "s" if len(lines) != 1 else ""
+        subject = f"[TaskForge] You have {len(lines)} unread notification{plural}"
         message = (
             f"Hi {user.first_name or 'there'},\n\n"
             f"Here's your daily digest:\n\n"

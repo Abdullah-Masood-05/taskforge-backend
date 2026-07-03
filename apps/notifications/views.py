@@ -5,13 +5,11 @@ NotificationViewSet  — list, mark-as-read, mark-all-read, unread-count
 AttachmentViewSet    — list, presigned upload, local upload (dev), delete
 ExportJobViewSet     — create (triggers PDF task), retrieve (poll), download
 """
-import os
 
 import structlog
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
-
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser
@@ -20,7 +18,8 @@ from rest_framework.response import Response
 
 from apps.accounts.permissions import IsOrgMember
 from apps.core.pagination import CreatedAtCursorPagination
-from apps.tasks.models import Attachment, Task, Project
+from apps.tasks.models import Attachment, Project, Task
+
 from .models import ExportJob, Notification
 from .serializers import (
     AttachmentSerializer,

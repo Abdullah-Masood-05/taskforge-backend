@@ -2,11 +2,12 @@
 Tests for the Stripe billing views and webhooks.
 """
 import json
-import pytest
-from unittest.mock import patch
-from rest_framework import status
-from django.utils import timezone
 from datetime import timedelta
+from unittest.mock import patch
+
+import pytest
+from django.utils import timezone
+from rest_framework import status
 
 from apps.accounts.tests.factories import MembershipFactory
 from apps.organizations.models import Organization
@@ -24,7 +25,9 @@ def _org_client(authenticated_client, role="admin"):
 
 @patch("apps.organizations.billing_views.stripe.checkout.Session.create")
 @patch("apps.organizations.billing_views.get_or_create_stripe_customer")
-def test_create_checkout_session(mock_get_customer, mock_checkout_create, authenticated_client, settings):
+def test_create_checkout_session(
+    mock_get_customer, mock_checkout_create, authenticated_client, settings
+):
     settings.STRIPE_SECRET_KEY = "sk_test_123"
     client, user, org = _org_client(authenticated_client, role="admin")
 
@@ -67,7 +70,9 @@ def test_portal_fails_if_no_customer(authenticated_client, settings):
 
 @patch("apps.organizations.billing_views.stripe.Webhook.construct_event")
 @patch("apps.organizations.billing_views.stripe.Subscription.retrieve")
-def test_webhook_checkout_completed(mock_sub_retrieve, mock_construct_event, api_client, settings, db):
+def test_webhook_checkout_completed(
+    mock_sub_retrieve, mock_construct_event, api_client, settings, db
+):
     settings.STRIPE_SECRET_KEY = "sk_test_123"
     settings.STRIPE_WEBHOOK_SECRET = "whsec_123"
     settings.STRIPE_PRO_PRICE_ID = "price_pro"

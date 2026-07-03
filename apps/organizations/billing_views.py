@@ -16,11 +16,12 @@ Design notes:
   - Augmenting Organization (no separate Subscription model) is the chosen design;
     see apps/organizations/models.py for the rationale.
 """
-import structlog
+from datetime import UTC
+
 import stripe
+import structlog
 from django.conf import settings
 from django.utils import timezone
-from datetime import timezone as datetime_timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -28,8 +29,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.accounts.permissions import IsOrgAdmin
-from apps.organizations.models import Organization
 from apps.organizations.billing import get_or_create_stripe_customer, plan_from_price_id
+from apps.organizations.models import Organization
 
 logger = structlog.get_logger(__name__)
 
@@ -218,7 +219,7 @@ class StripeWebhookView(APIView):
         org.plan = plan_from_price_id(price_id)
         org.subscription_status = Organization.SubscriptionStatus.ACTIVE
         org.current_period_end = timezone.datetime.fromtimestamp(
-            sub["current_period_end"], tz=datetime_timezone.utc
+            sub["current_period_end"], tz=UTC
         )
         org.save(update_fields=[
             "stripe_subscription_id", "plan",
@@ -244,7 +245,7 @@ class StripeWebhookView(APIView):
         org.plan = plan_from_price_id(price_id)
         org.subscription_status = status
         org.current_period_end = timezone.datetime.fromtimestamp(
-            subscription["current_period_end"], tz=datetime_timezone.utc
+            subscription["current_period_end"], tz=UTC
         )
         org.save(update_fields=["plan", "subscription_status", "current_period_end"])
         logger.info(

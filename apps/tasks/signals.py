@@ -122,7 +122,12 @@ def log_task_activity(sender, instance, created, **kwargs):
                 task_id=str(instance.pk),
             )
         except Exception as exc:
-            logger.error("broadcast_signal_failed", ws_event="task.created", task_id=str(instance.pk), error=str(exc))
+            logger.error(
+                "broadcast_signal_failed",
+                ws_event="task.created",
+                task_id=str(instance.pk),
+                error=str(exc),
+            )
         return
 
     old = getattr(_pre_save_state, "old", None)
@@ -162,7 +167,12 @@ def log_task_activity(sender, instance, created, **kwargs):
                 task_id=str(instance.pk),
             )
         except Exception as exc:
-            logger.error("broadcast_signal_failed", ws_event=event_type, task_id=str(instance.pk), error=str(exc))
+            logger.error(
+                "broadcast_signal_failed",
+                ws_event=event_type,
+                task_id=str(instance.pk),
+                error=str(exc),
+            )
 
 
 @receiver(post_delete, sender="tasks.Task")
@@ -177,7 +187,12 @@ def broadcast_task_deleted(sender, instance, **kwargs):
             task_id=str(instance.pk),
         )
     except Exception as exc:
-        logger.error("broadcast_signal_failed", ws_event="task.deleted", task_id=str(instance.pk), error=str(exc))
+        logger.error(
+            "broadcast_signal_failed",
+            ws_event="task.deleted",
+            task_id=str(instance.pk),
+            error=str(exc),
+        )
 
 
 # ─────────────────────────────────────────────────────────────

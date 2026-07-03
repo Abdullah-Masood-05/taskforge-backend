@@ -3,8 +3,8 @@ Stripe customer and subscription helpers for the organizations app.
 
 All Stripe API calls live here so billing_views.py stays thin (just HTTP in/out).
 """
-import structlog
 import stripe
+import structlog
 from django.conf import settings
 
 logger = structlog.get_logger(__name__)

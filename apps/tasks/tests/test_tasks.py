@@ -5,6 +5,7 @@ import pytest
 from rest_framework import status
 
 from apps.accounts.tests.factories import MembershipFactory, UserFactory
+
 from .factories import LabelFactory, ProjectFactory, TaskFactory, TaskStatusFactory
 
 pytestmark = pytest.mark.django_db

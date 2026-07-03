@@ -273,8 +273,8 @@ class Command(BaseCommand):
                 ))
         Task.objects.bulk_create(tasks)
 
-        AssigneeLink = Task.assignees.through
-        LabelLink = Task.labels.through
+        AssigneeLink = Task.assignees.through  # noqa: N806
+        LabelLink = Task.labels.through  # noqa: N806
         assignee_links, label_links = [], []
         for task in tasks:
             for user in rng.sample(team, k=rng.randint(1, 3)):

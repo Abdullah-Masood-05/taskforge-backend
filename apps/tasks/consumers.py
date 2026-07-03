@@ -14,11 +14,9 @@ Client → server messages are ignored for MVP (server push only).
 Auth: scope["user"] is set by JWTAuthMiddlewareStack before connect().
 Unauthenticated or non-member connections are rejected with close code 4001.
 """
-import json
 
 import structlog
 from channels.db import database_sync_to_async
-from channels.exceptions import DenyConnection
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from django.contrib.auth.models import AnonymousUser
 
@@ -99,8 +97,8 @@ class ProjectBoardConsumer(AsyncJsonWebsocketConsumer):
     @database_sync_to_async
     def _is_org_member(self, user, project_id):
         """Check that the user is a member of the org that owns the project."""
-        from apps.tasks.models import Project
         from apps.organizations.models import Membership
+        from apps.tasks.models import Project
 
         try:
             project = Project.objects.select_related("organization").get(

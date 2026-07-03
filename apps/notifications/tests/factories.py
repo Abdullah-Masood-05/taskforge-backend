@@ -4,9 +4,9 @@ Factories for notifications app tests.
 import factory
 from factory.django import DjangoModelFactory
 
-from apps.accounts.tests.factories import UserFactory, OrganizationFactory
-from apps.tasks.models import Attachment
+from apps.accounts.tests.factories import OrganizationFactory, UserFactory
 from apps.notifications.models import ExportJob, Notification
+from apps.tasks.models import Attachment
 
 
 class NotificationFactory(DjangoModelFactory):

@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
-from .models import Invitation, Membership, MemberRole, Organization
+from .models import Invitation, MemberRole, Membership, Organization
 
 User = get_user_model()
 
@@ -79,7 +79,9 @@ class MembershipSerializer(serializers.ModelSerializer):
             "invited_by_email",
             "joined_at",
         ]
-        read_only_fields = ["id", "user_id", "user_email", "user_full_name", "invited_by_email", "joined_at"]
+        read_only_fields = [
+            "id", "user_id", "user_email", "user_full_name", "invited_by_email", "joined_at"
+        ]
 
 
 class MembershipSummarySerializer(serializers.ModelSerializer):

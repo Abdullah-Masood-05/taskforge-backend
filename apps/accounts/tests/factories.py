@@ -18,7 +18,9 @@ class UserFactory(DjangoModelFactory):
         model = User
         skip_postgeneration_save = True  # factory_boy ≥ 4.x
 
-    email = factory.LazyAttribute(lambda o: f"{o.first_name.lower()}.{o.last_name.lower()}@example.com")
+    email = factory.LazyAttribute(
+        lambda o: f"{o.first_name.lower()}.{o.last_name.lower()}@example.com"
+    )
     first_name = factory.Faker("first_name")
     last_name = factory.Faker("last_name")
     is_active = True

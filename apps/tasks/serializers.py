@@ -81,7 +81,9 @@ class ProjectSerializer(serializers.ModelSerializer):
             "owner_email", "task_count", "status_count",
             "created_at", "updated_at",
         ]
-        read_only_fields = ["id", "owner_email", "task_count", "status_count", "created_at", "updated_at"]
+        read_only_fields = [
+            "id", "owner_email", "task_count", "status_count", "created_at", "updated_at"
+        ]
 
 
 class ProjectDetailSerializer(ProjectSerializer):

@@ -52,7 +52,9 @@ urlpatterns = project_router.urls + [
     ),
     path(
         "projects/<uuid:project_pk>/statuses/<uuid:pk>/",
-        TaskStatusViewSet.as_view({"get": "retrieve", "patch": "partial_update", "delete": "destroy"}),
+        TaskStatusViewSet.as_view(
+            {"get": "retrieve", "patch": "partial_update", "delete": "destroy"}
+        ),
         name="project-statuses-detail",
     ),
 

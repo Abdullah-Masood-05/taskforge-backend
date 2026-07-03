@@ -497,7 +497,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
         self._enforce_project_limit(org)
 
-        User = get_user_model()
+        User = get_user_model()  # noqa: N806
         users_created = 0
 
         with transaction.atomic():
@@ -639,7 +639,12 @@ class TaskStatusViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         project = _get_project(self, check_archived=True)
         # Default order = max existing order + 10
-        max_order = TaskStatus.objects.filter(project=project).order_by("-order").values_list("order", flat=True).first()
+        max_order = (
+            TaskStatus.objects.filter(project=project)
+            .order_by("-order")
+            .values_list("order", flat=True)
+            .first()
+        )
         order = (max_order or 0) + 10
         serializer.save(project=project, order=order)
 
@@ -807,7 +812,12 @@ class SubTaskViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         task = self._get_task()
-        max_order = SubTask.objects.filter(task=task).order_by("-order").values_list("order", flat=True).first()
+        max_order = (
+            SubTask.objects.filter(task=task)
+            .order_by("-order")
+            .values_list("order", flat=True)
+            .first()
+        )
         serializer.save(task=task, order=(max_order or 0) + 10)
 
 

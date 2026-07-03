@@ -1,12 +1,12 @@
 """
 Serializers for the notifications app.
 """
-from django.conf import settings
 from rest_framework import serializers
 
 from apps.tasks.models import Attachment
+
 from .models import ExportJob, Notification
-from .storage import generate_presigned_download_url, generate_presigned_upload_url, generate_file_key
+from .storage import generate_presigned_download_url
 
 
 class ActorSerializer(serializers.Serializer):
