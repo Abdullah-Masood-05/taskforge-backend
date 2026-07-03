@@ -2,10 +2,12 @@
   <img src="docs/logo.svg" alt="TaskForge logo" width="110"/>
 </p>
 
-# TaskForge Backend
+<h1 align="center">TaskForge Backend</h1>
 
-[![CI](https://github.com/Abdullah-Masood-05/taskforge-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/Abdullah-Masood-05/taskforge-backend/actions)  
-[![Code coverage](https://codecov.io/gh/Abdullah-Masood-05/taskforge-backend/branch/main/graph/badge.svg)](https://codecov.io/gh/Abdullah-Masood-05/taskforge-backend)
+<p align="center">
+  <a href="https://github.com/Abdullah-Masood-05/taskforge-backend/actions"><img src="https://github.com/Abdullah-Masood-05/taskforge-backend/actions/workflows/ci.yml/badge.svg" alt="CI"/></a>
+  <a href="https://codecov.io/gh/Abdullah-Masood-05/taskforge-backend"><img src="https://codecov.io/gh/Abdullah-Masood-05/taskforge-backend/branch/main/graph/badge.svg" alt="Code coverage"/></a>
+</p>
 
 ---
 
