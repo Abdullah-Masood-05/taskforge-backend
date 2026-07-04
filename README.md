@@ -12,7 +12,7 @@
   <a href="https://redis.io"><img src="https://img.shields.io/badge/Redis-7-FF4438?logo=redis&logoColor=white" alt="Redis"/></a>
   <a href="https://www.docker.com"><img src="https://img.shields.io/badge/Docker-compose-2496ED?logo=docker&logoColor=white" alt="Docker"/></a>
   <a href="https://docs.pytest.org"><img src="https://img.shields.io/badge/tests-pytest-0A9EDC?logo=pytest&logoColor=white" alt="pytest"/></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-22c55e" alt="MIT license"/></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPLv3-22c55e" alt="GPLv3 license"/></a>
 </p>
 
 ---
@@ -178,4 +178,4 @@ Please adhere to the existing code style (PEP 8) and run the linters (`flake8`
 ---
 
 ## License
-This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **GNU General Public License v3.0** – see the [LICENSE](LICENSE) file for details.
