@@ -1,17 +1,14 @@
 # Render Blueprint — https://render.com/docs/blueprint-spec
-# Deploy the full TaskForge backend stack:
-#   • PostgreSQL database
+# Deploy the TaskForge backend stack:
 #   • Redis (cache + Celery broker + Channels layer)
 #   • Daphne ASGI web service (Django + Channels)
 #
+# PostgreSQL is hosted externally on Neon (Render's free Postgres expires after
+# 30 days). DATABASE_URL is therefore set manually in the dashboard (sync: false)
+# and is NOT managed by this blueprint.
+#
 # Usage: Push this file to GitHub, connect the repo in the Render dashboard,
 # and "Create New Blueprint Instance" to provision all resources at once.
-
-databases:
-  - name: taskforge-db
-    databaseName: taskforge
-    user: taskforge
-    plan: free
 
 services:
   # ── Redis ────────────────────────────────────────────────────────────────────
@@ -48,10 +45,9 @@ services:
         generateValue: true
 
       # ── Database & Redis (wired automatically from above services) ─────────
+      # External Neon Postgres — set manually in the dashboard (contains a secret).
       - key: DATABASE_URL
-        fromDatabase:
-          name: taskforge-db
-          property: connectionString
+        sync: false
       - key: REDIS_URL
         fromService:
           type: redis

@@ -116,7 +116,9 @@ DATABASES = {
     "default": env.db("DATABASE_URL", default="sqlite:///db.sqlite3"),
 }
 DATABASES["default"]["CONN_MAX_AGE"] = 60
-DATABASES["default"]["OPTIONS"] = {"connect_timeout": 10}
+# Preserve any options parsed from DATABASE_URL (e.g. sslmode=require for
+# managed Postgres like Neon) instead of overwriting them.
+DATABASES["default"].setdefault("OPTIONS", {})["connect_timeout"] = 10
 
 # ─────────────────────────────────────────────────────────────
 # Cache / Redis  (Phase 1: used for axes session store)
