@@ -18,8 +18,10 @@ class UserFactory(DjangoModelFactory):
         model = User
         skip_postgeneration_save = True  # factory_boy ≥ 4.x
 
-    email = factory.LazyAttribute(
-        lambda o: f"{o.first_name.lower()}.{o.last_name.lower()}@example.com"
+    # Faker's name pools are finite, so first.last@example.com alone collides
+    # often enough to trip the unique constraint; the sequence number fixes that.
+    email = factory.LazyAttributeSequence(
+        lambda o, n: f"{o.first_name.lower()}.{o.last_name.lower()}.{n}@example.com"
     )
     first_name = factory.Faker("first_name")
     last_name = factory.Faker("last_name")
