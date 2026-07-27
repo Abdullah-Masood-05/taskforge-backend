@@ -32,17 +32,17 @@
 ---
 
 ## About
-**TaskForge** is a multi‑tenant project‑management SaaS backend built with **Django 5**, **Django REST Framework**, **PostgreSQL**, and **Redis**.  The service provides robust role‑based access control (RBAC), custom JWT authentication, and tenant isolation using row‑level permissions.
+**TaskForge** is a multi‑tenant project‑management SaaS backend built with **Django 5**, **Django REST Framework**, **PostgreSQL**, and **Redis**.  The service handles role-based access control (RBAC), custom JWT authentication, and tenant isolation using row-level permissions.
 
 ---
 
 ## Architecture Overview
 The repository contains a single Django project that is deliberately split into reusable apps.  Key architectural decisions include:
-- **Row‑level multi‑tenancy** – a single database schema with tenant identifiers (`Organization`, `Membership`). This simplifies migrations and analytics while maintaining strong isolation.
-- **Custom JWT workflow** – thin wrappers around `simplejwt` for full control over token payloads and blacklisting on logout.
-- **Dual organization resolution** – tenant can be supplied via URL slug or the `X-Organization-Slug` header, giving flexibility to front‑end clients.
-- **Security hardening** – integrations such as `django‑axes` protect against brute‑force attacks.
-- **Dockerised development** – multi‑stage Dockerfile and `docker‑compose.yml` enable reproducible local environments.
+- **Row-level multi-tenancy**: a single database schema with tenant identifiers (`Organization`, `Membership`). This keeps migrations and analytics simple while still isolating tenants.
+- **Custom JWT workflow**: thin wrappers around `simplejwt` for full control over token payloads and blacklisting on logout.
+- **Dual organization resolution**: tenant can be supplied via URL slug or the `X-Organization-Slug` header, so front-end clients can pick whichever fits.
+- **Security hardening**: `django-axes` protects against brute-force attacks.
+- **Dockerized development**: multi-stage Dockerfile and `docker-compose.yml` for reproducible local environments.
 
 ---
 
@@ -109,7 +109,7 @@ python manage.py runserver
 
 ## Demo / Screenshot Data
 `seed` creates the org and users; `seed_demo_project` fills it with a large,
-realistic showcase board — **"Platform Relaunch Q1"** — built to fully populate
+realistic showcase board called **"Platform Relaunch Q1"**, built to fully populate
 the project dashboard (Kanban columns, timeline, velocity chart, priority
 distribution and activity feed):
 
@@ -119,7 +119,7 @@ python manage.py seed_demo_project --large-project --reset
 
 What it seeds:
 - 8 demo team members with stable avatar URLs (deterministic per email)
-- 5 columns (Backlog, To-Do, In Progress, In Review, Done — Done is terminal)
+- 5 columns (Backlog, To-Do, In Progress, In Review, Done). Done is terminal.
 - 7 colored labels and ~150 tasks with 1–3 assignees, labels, priorities,
   start/due dates spread over the next 8 months, and progress on
   in-progress cards
@@ -178,4 +178,4 @@ Please adhere to the existing code style (PEP 8) and run the linters (`flake8`
 ---
 
 ## License
-This project is licensed under the **GNU General Public License v3.0** – see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **GNU General Public License v3.0**. See the [LICENSE](LICENSE) file for details.
