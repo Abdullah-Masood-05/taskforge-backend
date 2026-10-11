@@ -13,6 +13,11 @@
   <a href="https://www.docker.com"><img src="https://img.shields.io/badge/Docker-compose-2496ED?logo=docker&logoColor=white" alt="Docker"/></a>
   <a href="https://docs.pytest.org"><img src="https://img.shields.io/badge/tests-pytest-0A9EDC?logo=pytest&logoColor=white" alt="pytest"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPLv3-22c55e" alt="GPLv3 license"/></a>
+  <a href="https://github.com/Abdullah-Masood-05/taskforge-backend/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/Abdullah-Masood-05/taskforge-backend?style=social&logo=github"></a>
+</p>
+
+<p align="center">
+  ⭐ <b>Enjoying TaskForge Backend?</b> If it's useful to you, please <a href="https://github.com/Abdullah-Masood-05/taskforge-backend">star it on GitHub</a>. It's free and it helps other developers find it.
 </p>
 
 ---
