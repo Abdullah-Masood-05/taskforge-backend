@@ -51,7 +51,8 @@ sentry-sdk[django]==2.19.2
 django-silk==5.3.2
 
 # Utilities
-Pillow==11.0.0
+Pillow==11.0.0; python_version < "3.15"
+Pillow>=12.3.0; python_version >= "3.15"
 python-slugify==8.0.4
 
 # PDF generation (Phase 3)
