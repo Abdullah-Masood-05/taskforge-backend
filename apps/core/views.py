@@ -40,7 +40,10 @@ def health_check(request):
 
     # ── Redis ────────────────────────────────────────────────────────────
     try:
-        redis_url = settings.REDIS_URL if hasattr(settings, "REDIS_URL") else             settings.CACHES["default"]["LOCATION"]
+        redis_url = (
+            getattr(settings, "REDIS_URL", None)
+            or settings.CACHES["default"]["LOCATION"]
+        )
         r = redis.from_url(redis_url, socket_connect_timeout=1, socket_timeout=2)
         r.ping()
         checks["redis"] = "ok"
