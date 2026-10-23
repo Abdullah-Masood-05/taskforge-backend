@@ -34,9 +34,9 @@ PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.MD5PasswordHasher",
 ]
 
-# SQLite + ASGI: persistent connections (CONN_MAX_AGE=60 from base) cause
-# "database is locked" errors under Daphne because SQLite only allows one
-# writer at a time. Reset to 0 in dev so each request gets a fresh connection.
+# SQLite + ASGI: persistent connections cause "database is locked" errors
+# under Daphne because SQLite only allows one writer at a time. Base already
+# sets CONN_MAX_AGE=0; keep it pinned here in case that default changes.
 if DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3":  # noqa: F405
     DATABASES["default"]["CONN_MAX_AGE"] = 0  # noqa: F405
 

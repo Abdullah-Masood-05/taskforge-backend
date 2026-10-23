@@ -115,7 +115,12 @@ ASGI_APPLICATION = "config.asgi.application"
 DATABASES = {
     "default": env.db("DATABASE_URL", default="sqlite:///db.sqlite3"),
 }
-DATABASES["default"]["CONN_MAX_AGE"] = 60
+# The app is served by Daphne (ASGI). Django's docs say persistent connections
+# should be disabled under ASGI, and Neon drops connections when its compute
+# suspends after 5 idle minutes, so a reused connection can hang. Open a fresh
+# connection per request and health-check any connection before reuse.
+DATABASES["default"]["CONN_MAX_AGE"] = 0
+DATABASES["default"]["CONN_HEALTH_CHECKS"] = True
 # Preserve any options parsed from DATABASE_URL (e.g. sslmode=require for
 # managed Postgres like Neon) instead of overwriting them.
 DATABASES["default"].setdefault("OPTIONS", {})["connect_timeout"] = 10

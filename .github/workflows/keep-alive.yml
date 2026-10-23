@@ -1,8 +1,10 @@
 name: Keep API awake
 
 # Render's free plan stops a web service after 15 minutes without traffic, and
-# the next request then waits for a cold boot. Pinging /health/ every few
-# minutes keeps the instance running. /health/ is not rate limited.
+# the next request then waits for a cold boot. The main pinger is a Netlify
+# scheduled function in taskforge-frontend, which runs on time; GitHub's
+# scheduler can be late by tens of minutes, so this workflow is only a backup.
+# /health/ is not rate limited and does not touch the database.
 on:
   schedule:
     - cron: "*/5 * * * *"

@@ -62,7 +62,7 @@ The repository contains a single Django project that is deliberately split into 
 | RBAC permissions | ✅ | DRF permission classes (`IsOrgAdmin`, `IsOrgMember`, `IsOrgViewer`) |
 | CurrentOrg middleware | ✅ | Auto‑detect tenant from slug or header |
 | Brute‑force protection | ✅ | `django‑axes` integration |
-| Health check endpoint | ✅ | `/api/v1/health/` validates DB & Redis |
+| Health check endpoint | ✅ | `/api/v1/health/` liveness; `?deep=1` validates DB & Redis |
 | OpenAPI documentation | ✅ | Swagger UI (`/api/v1/docs/`) and Redoc (`/api/v1/redoc/`) |
 | Test suite | ✅ | `pytest` with `factory_boy`; >80 % coverage |
 | Docker development | ✅ | Multi‑stage Dockerfile + Compose |
