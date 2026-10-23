@@ -1,0 +1,44 @@
+name: Keep API awake
+
+# Render's free plan stops a web service after 15 minutes without traffic, and
+# the next request then waits for a cold boot. Pinging /health/ every few
+# minutes keeps the instance running. /health/ is not rate limited.
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  actions: write
+
+concurrency:
+  group: keep-alive
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping /health/
+        run: |
+          for i in 1 2 3; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 90 \
+              https://taskforge-api-mu6x.onrender.com/health/) || code=000
+            echo "attempt $i: HTTP $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 15
+          done
+          echo "::warning::API did not answer 200 after 3 attempts"
+
+      # GitHub disables scheduled workflows in public repos after 60 days
+      # without repository activity. Re-enabling it once a month resets that.
+      - name: Keep this schedule enabled
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # During the first hour (UTC) of each month, and on manual runs.
+          if [ "$(date -u +%d%H)" = "0100" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            gh api -X PUT "repos/${{ github.repository }}/actions/workflows/keep-alive.yml/enable"
+            echo "Schedule re-enabled."
+          fi
