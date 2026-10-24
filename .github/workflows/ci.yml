@@ -99,22 +99,3 @@ jobs:
       - name: Check known vulnerabilities
         run: safety check -r requirements/base.txt --continue-on-error
 
-  # Render's GitHub integration is not linked to this repository, so pushes do
-  # not deploy on their own. Call the service's deploy hook once the tests pass
-  # on main. Commits containing "[skip render]" are not deployed.
-  deploy:
-    name: Deploy to Render
-    needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, '[skip render]')
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Trigger Render deploy
-        env:
-          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
-        run: |
-          if [ -z "$HOOK" ]; then
-            echo "::error::RENDER_DEPLOY_HOOK secret is not set"
-            exit 1
-          fi
-          curl -fsS -X POST "$HOOK" -o /dev/null -w "Render accepted the deploy (HTTP %{http_code})\n"
